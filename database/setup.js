@@ -3,9 +3,9 @@ require('dotenv').config();
 
 // Create Sequelize instance
 const db = new Sequelize({
-  dialect: 'sqlite',
-  storage: `database/${process.env.DB_NAME}` || 'database/task_management.db',
-  logging: console.log
+    dialect: 'sqlite',
+    storage: `database/${process.env.DB_NAME}` || 'database/task_management.db',
+    logging: console.log
 });
 
 // Define Project model
@@ -65,9 +65,38 @@ const Task = db.define('Task', {
         allowNull: false
     }
 });
+const User = db.define('User', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    username: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false
+    }
+});
+
+
+User.hasMany(Project, { foreignKey: 'userId' });
+Project.belongsTo(User, { foreignKey: 'userId' });
+
+
+Project.hasMany(Task, { foreignKey: 'projectId' });
+Task.belongsTo(Project, { foreignKey: 'projectId' });
+
 
 // Export for use in other files
-module.exports = { db, Project, Task };
+module.exports = { db, User, Project, Task };
 
 // Create database and tables
 async function setupDatabase() {
